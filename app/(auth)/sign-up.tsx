@@ -1,4 +1,4 @@
-import { Text, ScrollView, View, Image } from "react-native";
+import { Text, ScrollView, View, Image, Alert } from "react-native";
 import { icons, images } from "@/constants";
 import InputField from "@/components/InputField";
 import { useState } from "react";
@@ -10,13 +10,16 @@ import { ReactNativeModal } from "react-native-modal";
 
 const SignUp = () => {
   const { isLoaded, signUp, setActive } = useSignUp();
+  const [showSucessModal, setShowSucessModal] = useState(false);
+
   const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
   });
+
   const [verification, setVerification] = useState({
-    state: "pending",
+    state: "default",
     error: "",
     code: "",
   });
@@ -38,7 +41,7 @@ const SignUp = () => {
         state: "pending",
       });
     } catch (err: any) {
-      console.error(JSON.stringify(err, null, 2));
+      Alert.alert("Error", err.errors[0].longMessage);
     }
   };
 
@@ -122,9 +125,9 @@ const SignUp = () => {
 
         <ReactNativeModal
           isVisible={verification.state === "pending"}
-          onModalHide={() =>
-            setVerification({ ...verification, state: "success" })
-          }
+          onModalHide={() => {
+            if (verification.state === "success") setShowSucessModal(true);
+          }}
         >
           <View className="bg-white px-7 py-9 rounded-2xl min-h-[300px]">
             <Text className="text-2xl font-JakartaExtraBold mb-2">
@@ -133,10 +136,30 @@ const SignUp = () => {
             <Text className="font-Jakarta mb-5">
               We've sent a verification code to {form.email}
             </Text>
+            <InputField
+              label="Code"
+              icon={icons.lock}
+              placeholder="12345"
+              keyboardType="numeric"
+              onChangeText={(code) =>
+                setVerification({ ...verification, code })
+              }
+            />
+            {verification.error && (
+              <Text className="text-red-500 mt-1 text-sm ">
+                Iain
+                {verification.error}
+              </Text>
+            )}
+            <CustomButton
+              title="Verify Email"
+              onPress={onPressVerify}
+              className="mt-5 bg-success-500"
+            />
           </View>
         </ReactNativeModal>
 
-        <ReactNativeModal isVisible={verification.state === "success"}>
+        <ReactNativeModal isVisible={showSucessModal}>
           <View className="bg-white px-7 py-9 rounded-2xl min-h-[300px]">
             <Image
               source={images.check}
@@ -150,7 +173,10 @@ const SignUp = () => {
             </Text>
             <CustomButton
               title="Browse Home"
-              onPress={() => router.replace("/(root)/(tabs)/home")}
+              onPress={() => {
+                setShowSucessModal(false);
+                router.push("/(root)/(tabs)/home");
+              }}
               className="mt-5"
             />
           </View>
