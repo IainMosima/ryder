@@ -14,6 +14,7 @@ import CustomButton from "@/components/CustomButton";
 const OnBoarding = () => {
   const swiperRef = useRef<Swiper>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const isLastSlide = activeIndex === onboarding.length - 1;
   return (
     <SafeAreaView className="flex h-full items-center justify-between bg-white">
       <TouchableOpacity
@@ -54,8 +55,12 @@ const OnBoarding = () => {
       </Swiper>
 
       <CustomButton
-        // onPress={}
-        title="Next"
+        onPress={() =>
+          isLastSlide
+            ? router.replace("/(auth)/sign-up")
+            : swiperRef.current?.scrollBy(1)
+        }
+        title={isLastSlide ? "Get Started" : "Next"}
         // bgVariant={}
         // textVariant={}
         // IconLeft={}
